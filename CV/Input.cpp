@@ -4,7 +4,7 @@
 
 Mat ReadImage(string name)
 {
-	Mat src=imread(name,0); //image path
+	Mat src=imread(name); //image path
 	
 		if (src.empty()) 
 		{

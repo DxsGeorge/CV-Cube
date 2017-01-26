@@ -4,6 +4,8 @@
 using namespace cv;
 using namespace std;
 
+float eps=std::numeric_limits<float>::epsilon();
+
 Line::Line(int x1,int y1,int x2,int y2)
 {
 	if (y1>y2)
@@ -37,8 +39,7 @@ bool Line::same_as(Line l,int offset1, float offset2)
 
 bool SamePoint (Point p1, Point p2, int offset) 
 {
-	if (abs(p1.x-p2.x)<offset && abs(p1.y-p2.y)<offset) return true;
-	else return false;
+	return (abs(p1.x-p2.x)<offset && abs(p1.y-p2.y)<offset);
 }
 
 bool VerticalLines (Point p1, Point p2, Point p3, Point p4, float offset)
@@ -95,6 +96,34 @@ bool LineIntersection (int x1, int y1, int x2, int y2, int x3, int y3, int x4, i
 	else return false;
 }
 
+bool CounterClockWise(Point a, Point b, Point c)
+{
+	return (c.y-a.y)*(b.x-a.x) > (b.y-a.y)*(c.x-a.x);
+}
+
+bool LineIntersection2(Point A, Point B, Point C, Point D, Point &r)
+{
+	Point2f s1,s2;
+	s1=B-A;
+    s2=D-C;
+	float s, t;
+	if ( abs(-s2.x * s1.y + s1.x * s2.y)<=eps) return false;
+    s = (-s1.y * (A.x - C.x) + s1.x * (A.y - C.y)) / (-s2.x * s1.y + s1.x * s2.y);
+    t = ( s2.x * (A.y - C.y) - s2.y * (A.x - C.x)) / (-s2.x * s1.y + s1.x * s2.y);
+	if (s>=eps && s -1 <= eps && t >= eps && t - 1 <= eps)
+    {
+        // Collision detected
+        if (r.x != NULL)
+            r.x = A.x + (t * s1.x);
+        if (r.y != NULL)
+            r.y = A.y + (t * s1.y);
+        return true;
+    }
+
+    return false; // No collision
+
+}
+
 bool sameLine (int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,int offset1, float offset2) 
 {
 	int dot=(x1-x2)*(x3-x4)+(y1-y2)*(y3-y4);
@@ -106,4 +135,53 @@ bool sameLine (int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,in
 	else if (abs(x1-x3)<offset1 && abs(y1-y3)<offset1 && abs(cosf-1)<offset2) return true;
 	else if (abs(x2-x4)<offset1 && abs(y2-y4)<offset1 && abs(cosf-1)<offset2) return true;
 	else return false;
+}
+
+bool CheckParallel(Point a, Point b, Point c, Point d)
+{
+	return (abs((a.x-b.x)*(c.y-d.y)-(a.y-b.y)*(c.x-d.x))<std::numeric_limits<float>::epsilon() );
+}
+
+Point IntersectionPoint(Point a, Point b, Point c, Point d)
+{
+	float X=(float)((a.x*b.y-a.y*b.x)*(c.x-d.x)-(a.x-b.x)*(c.x*d.y-d.x*c.y))/((a.x-b.x)*(c.y-d.y)-(a.y-b.y)*(c.x-d.x));
+	float Y=(float)((a.x*b.y-a.y*b.x)*(c.y-d.y)-(a.y-b.y)*(c.x*d.y-d.x*c.y))/((a.x-b.x)*(c.y-d.y)-(a.y-b.y)*(c.x-d.x));
+	return Point((int) X, (int) Y);
+}
+
+bool isBetween(Point a, Point b, Point c)
+{
+	float crossproduct = (c.y - a.y) * (b.x - a.x) - (c.x - a.x) * (b.y - a.y);
+	float dotproduct = (c.x - a.x) * (b.x - a.x) + (c.y - a.y)*(b.y - a.y);
+	float squaredlengthba = (b.x - a.x)*(b.x - a.x) + (b.y - a.y)*(b.y - a.y);
+	if (abs(crossproduct)<std::numeric_limits<float>::epsilon()) return false;
+	
+    else if (abs(dotproduct) < std::numeric_limits<float>::epsilon())  return false;
+	
+    else if (dotproduct > squaredlengthba) return false;
+
+    else return true;
+}
+
+bool isBetween2(Point a, Point b, Point c)
+{
+	float ba = sqrt((float)(b.x - a.x)*(b.x - a.x) + (b.y - a.y)*(b.y - a.y));
+	float bc = sqrt((float)(b.x - c.x)*(b.x - c.x) + (b.y - c.y)*(b.y - c.y));
+	float ac = sqrt((float)(c.x - a.x)*(c.x - a.x) + (c.y - a.y)*(c.y - a.y));
+	return (abs(ac+bc-ba)<std::numeric_limits<double>::epsilon()); 
+}
+
+bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r)
+{
+    Point2f x = o2 - o1;
+    Point2f d1 = p1 - o1;
+    Point2f d2 = p2 - o2;
+
+    float cross = d1.x*d2.y - d1.y*d2.x;
+    if (abs(cross) < std::numeric_limits<double>::epsilon())
+        return false;
+
+    double t1 = (x.x * d2.y - x.y * d2.x)/cross;
+    r = o1 + d1 * t1;
+    return true;
 }

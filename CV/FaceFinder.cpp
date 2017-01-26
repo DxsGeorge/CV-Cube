@@ -14,30 +14,27 @@ vector<Point> FindIntersectionSpots (vector<Line> lines, int p_offset, float l_o
 	for( size_t i = 0; i < lines.size(); i++ )
     {
 		
-		for (size_t j = i; j < lines.size(); j++)
+		for (size_t j = i+1; j < lines.size(); j++)
 		{
-			if (i!=j && VerticalLines(Point(lines[i].x1,lines[i].y1),Point(lines[i].x2,lines[i].y2),Point(lines[j].x1,lines[j].y1),Point(lines[j].x2,lines[j].y2),l_offset))
-			{
  //only start points
-				if ((SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x1,lines[j].y1),p_offset)||
-					SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x1,lines[j].y1),p_offset)) &&
-					i != j)
-				{
-					SamePoints.push_back(Point(lines[j].x1,lines[j].y1));
-				}
-				else if (SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x2,lines[j].y2),p_offset)||
-						SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x2,lines[j].y2),p_offset) &&
-						i != j) 
-				{
-					SamePoints.push_back(Point(lines[j].x2,lines[j].y2));
-				}
- // intersections
-				Point a;
-				if (LineIntersection(lines[i].x1,lines[i].y1,lines[i].x2,lines[i].y2,lines[j].x1,lines[j].y1,lines[j].x2,lines[j].y2, a))
-				{
-					SamePoints.push_back(a);
-				}
+			Point A=Point(lines[i].x1,lines[i].y1);
+			Point B=Point(lines[i].x2,lines[i].y2);
+			Point C=Point(lines[j].x1,lines[j].y1);
+			Point D=Point(lines[j].x2,lines[j].y2);
+			if (SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x1,lines[j].y1),p_offset)||
+				SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x1,lines[j].y1),p_offset))
+			{
+				SamePoints.push_back(Point(lines[j].x1,lines[j].y1));
 			}
+			else if (SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x2,lines[j].y2),p_offset)||
+					SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x2,lines[j].y2),p_offset)) 
+			{
+				SamePoints.push_back(Point(lines[j].x2,lines[j].y2));
+			}
+			
+// intersections
+			Point a;
+			LineIntersection2(A, B, C, D, a);			
 		}
 	}
 	return SamePoints;

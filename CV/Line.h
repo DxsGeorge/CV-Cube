@@ -27,3 +27,17 @@ float twoDcross (float x1, float y1, float x2, float y2);
 bool LineIntersection (int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4, Point &a);
 
 bool sameLine (int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,int offset1, float offset2);
+
+bool CounterClockWise(Point a, Point b, Point c);
+
+bool LineIntersection2(Point a, Point b, Point c, Point d, Point &r);
+
+Point IntersectionPoint(Point a, Point b, Point c, Point d);
+
+bool CheckParallel(Point a, Point b, Point c, Point d);
+
+bool isBetween(Point a, Point b, Point c);
+
+bool isBetween2(Point a, Point b, Point c);
+
+bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r);
