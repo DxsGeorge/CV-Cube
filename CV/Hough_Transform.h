@@ -4,4 +4,4 @@
 using namespace cv;
 using namespace std;
 
-vector<Vec4i> HoughTransform (Mat src, Mat &dst);
+vector<Vec4i> HoughTransform (Mat src, Mat &dst,int canny_p[], int hough_p[]);

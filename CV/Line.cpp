@@ -5,6 +5,7 @@ using namespace cv;
 using namespace std;
 
 float eps=std::numeric_limits<float>::epsilon();
+double epsilon=0.001;
 
 Line::Line(int x1,int y1,int x2,int y2)
 {
@@ -110,13 +111,11 @@ bool LineIntersection2(Point A, Point B, Point C, Point D, Point &r)
 	if ( abs(-s2.x * s1.y + s1.x * s2.y)<=eps) return false;
     s = (-s1.y * (A.x - C.x) + s1.x * (A.y - C.y)) / (-s2.x * s1.y + s1.x * s2.y);
     t = ( s2.x * (A.y - C.y) - s2.y * (A.x - C.x)) / (-s2.x * s1.y + s1.x * s2.y);
-	if (s>=eps && s -1 <= eps && t >= eps && t - 1 <= eps)
+	if (s>=epsilon && s -1 <= epsilon && t >= epsilon && t - 1 <= epsilon)
     {
         // Collision detected
-        if (r.x != NULL)
-            r.x = A.x + (t * s1.x);
-        if (r.y != NULL)
-            r.y = A.y + (t * s1.y);
+        r.x = A.x + (t * s1.x);
+        r.y = A.y + (t * s1.y);
         return true;
     }
 
