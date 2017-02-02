@@ -1,6 +1,7 @@
 #pragma once
 #include <opencv2/highgui/highgui.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
+#include <unordered_set>
 
 using namespace cv;
 using namespace std;
@@ -41,3 +42,4 @@ bool isBetween(Point a, Point b, Point c);
 bool isBetween2(Point a, Point b, Point c);
 
 bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r);
+

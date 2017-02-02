@@ -3,7 +3,9 @@
 vector<Vec4i> HoughTransform (Mat src, Mat &dst,int canny_p[], int hough_p[])
 {
 	//pyrDown(src,src,Size(src.cols/2,src.rows/2));
-	GaussianBlur(src,src,Size(3,3),0,0);	
+	//GaussianBlur(src,src,Size(3,3),0,0);
+	//Mat src1;
+	//bilateralFilter(src,src1,9,75,75);
 	cvtColor(src,dst,CV_BGR2GRAY);	
 	Laplacian(src,dst,CV_16SC1,3,1,0);
 	convertScaleAbs(dst,dst,1,0);
