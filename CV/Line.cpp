@@ -76,6 +76,11 @@ float Distance (int x1, int y1, int x2, int y2)
 	return dist;
 }
 
+float Distance (Point p1, Point p2)
+{
+	return Distance(p1.x,p1.y,p2.x,p2.y);
+}
+
 float twoDcross (float x1, float y1, float x2, float y2)
 {
 	return x1*y2-y1*x2;

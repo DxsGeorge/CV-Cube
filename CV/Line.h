@@ -1,4 +1,5 @@
 #pragma once
+
 #include <opencv2/highgui/highgui.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 #include <unordered_set>
@@ -22,6 +23,8 @@ bool VerticalLines (Point p1, Point p2, Point p3, Point p4, float offset);
 bool VerticalLines (Line l1, Line l2, float offset);
 
 float Distance (int x1, int y1, int x2, int y2);
+
+float Distance (Point p1, Point p2);
 
 float twoDcross (float x1, float y1, float x2, float y2);
 

@@ -46,8 +46,16 @@ vector<Point> FindIntersectionSpots (vector<Line> lines, int p_offset, float l_o
 	return SamePoints;
 }
 
-vector<Point> FindSquares()
+vector<Point> FindSquares(vector <Point> points)
 {
 	vector<Point> squares;
+	for (size_t i=0;i<points.size();i++)
+	{
+		for (size_t j=i+1;j<points.size();j++)
+		{
+			float dist=Distance(points[i],points[j]);
+
+		}
+	}
 	return squares;
 }
