@@ -1,5 +1,10 @@
 #include "FaceFinder.h"
 
+float roundf(float val)
+{
+	return val >= 0.0f ? floorf(val + 0.5f) : ceilf(val - 0.5f);
+}
+
 vector<Point> FindIntersectionSpots (vector<Line> lines, int p_offset, float l_offset)
 {
 	vector <Point> SamePoints;
@@ -46,16 +51,33 @@ vector<Point> FindIntersectionSpots (vector<Line> lines, int p_offset, float l_o
 	return SamePoints;
 }
 
-vector<Point> FindSquares(vector <Point> points)
+vector<Square> FindSquares(vector <Point> points, float offset)
 {
-	vector<Point> squares;
+	vector<Square> squares;
+	multimap<float, array<Point,2>> distances;
 	for (size_t i=0;i<points.size();i++)
 	{
 		for (size_t j=i+1;j<points.size();j++)
 		{
 			float dist=Distance(points[i],points[j]);
-
+			dist=roundf(dist);
+			array<Point,2> pointa;
+			pointa[0]=points[i];
+			pointa[1]=points[j];
+			distances.insert(pair<float,array<Point,2>>(dist,pointa));
+		}
+	}
+	for (multimap<float, array<Point,2>>::iterator it = distances.begin(); it!=distances.end(); ++it)
+	{
+		float dist = (*it).first;
+		if  (distances.count(dist)<4) break;
+		pair<multimap<float,array<Point,2>>::iterator,multimap<float,array<Point,2>>::iterator> range = distances.equal_range(dist);
+		for (multimap<float, array<Point,2>>::iterator it2 = range.first; it2!=range.second ; ++it2)
+		{
+			if (isSquare((*it).second,(*it2).second,(*it).first,offset)) 
+				squares.push_back(Square((*it).second[0],(*it).second[1],(*it2).second[0],(*it2).second[1]));
 		}
 	}
 	return squares;
 }
+

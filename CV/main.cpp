@@ -86,6 +86,8 @@ int main()
 
 				vector <Point> SamePoints;
 				SamePoints=FindIntersectionSpots(lines,p_offset,l_offset);
+				vector<Square> squares;
+				squares=FindSquares(SamePoints, l_offset);
 
 				//Draw
 				cvtColor(dst,dst,CV_GRAY2BGR);
@@ -101,7 +103,24 @@ int main()
 					//text<<"("<<SamePoints[i].x<<","<<SamePoints[i].y<<")";
 					//string text1 = text.str();
 					circle (dst, SamePoints[i], 1, Scalar(0,255,0), 2);
+					
+					
+					
 					//putText(dst,text1, SamePoints[i],FONT_HERSHEY_SIMPLEX,0.33,Scalar(0,255,0));
+				}
+
+				for (size_t i=0; i<squares.size() ; i++)
+				{
+					circle (dst, squares[i].getPoint(1), 1, Scalar(255,0,0), 2);
+					circle (dst, squares[i].getPoint(2), 1, Scalar(255,0,0), 2);
+					circle (dst, squares[i].getPoint(3), 1, Scalar(255,0,0), 2);
+					circle (dst, squares[i].getPoint(4), 1, Scalar(255,0,0), 2);
+					vector<Point> sqpoints;
+					sqpoints.push_back(squares[i].getPoint(1));
+					sqpoints.push_back(squares[i].getPoint(2));
+					sqpoints.push_back(squares[i].getPoint(3));
+					sqpoints.push_back(squares[i].getPoint(4));
+					fillConvexPoly(dst, &sqpoints[0], 4, Scalar(255,0,0));
 				}
 			
 				imshow("video",src);

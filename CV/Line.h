@@ -3,6 +3,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 #include <unordered_set>
+#include <array>
 
 using namespace cv;
 using namespace std;
@@ -46,3 +47,13 @@ bool isBetween2(Point a, Point b, Point c);
 
 bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r);
 
+class Square
+{
+	Point p1, p2, p3, p4;
+public:
+	Square (Point point1, Point point2, Point point3, Point point4);
+	float Area();
+	Point getPoint(int val);
+};
+
+bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset);

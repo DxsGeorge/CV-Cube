@@ -15,12 +15,10 @@
     <ClCompile Include="Hough_Transform.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="FloatList.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FaceFinder.h" />
-    <ClInclude Include="FloatList.h" />
     <ClInclude Include="Hough_Transform.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Line.h" />

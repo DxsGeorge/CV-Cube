@@ -189,3 +189,51 @@ bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r)
     r = o1 + d1 * t1;
     return true;
 }
+
+Square::Square (Point point1, Point point2, Point point3, Point point4)
+{
+	p1=point1;
+	p2=point2;
+	p3=point3;
+	p4=point4;
+}
+
+float Square::Area()
+{
+	return pow(Distance(p1,p2),2);
+}
+
+Point Square::getPoint(int val)
+{
+	switch (val) {
+	case 1: 
+		return this->p1;
+		break;
+	case 2:
+		return this->p2;
+		break;
+	case 3:
+		return this->p3;
+		break;
+	case 4:
+		return this->p4;
+		break;
+	default:
+		return Point(NULL);
+		break;
+	}
+}
+
+bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset)
+{
+	Point p1=p12[0];
+	Point p2=p12[1];
+	Point p3=p34[0];
+	Point p4=p34[1];
+	if (abs((Distance(p1,p3)-dist)<offset && abs(Distance(p2,p4)-dist)<offset) ||
+		abs(Distance(p1,p4)-dist)<offset && abs(Distance(p2,p3)-dist)<offset)
+	{
+		return true;
+	}
+	else return false;
+}

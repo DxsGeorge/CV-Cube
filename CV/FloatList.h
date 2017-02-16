@@ -32,6 +32,7 @@ class PointList
 private:
 	Node* head;
 	Node* tail;
+	int length;
 
 public:
 	PointList(void);
@@ -42,6 +43,7 @@ public:
 
 	void addItem(Point p1, Point p2);
 
+	int getLength();
 
 };
 

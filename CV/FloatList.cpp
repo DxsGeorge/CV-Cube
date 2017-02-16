@@ -41,17 +41,20 @@ class PointList
 private:
 	Node* head;
 	Node* tail;
+	int length;
 
 public:
 	PointList(void)
 	{
 		head=tail=NULL;
+		length=0;
 	};
 
 	PointList(Point p1, Point p2)
 	{
 		head=new Node(p1,p2);
 		tail=head;
+		length=1;
 	};
 
 	void traverse()
@@ -63,7 +66,12 @@ public:
 	{
 		Node newnode(p1, p2, head);
 		*head=newnode;
+		length++;
 	};
 
+	int getLength()
+	{
+		return length;
+	}
 
 };
