@@ -14,6 +14,7 @@ class Line
 		int x1,x2,y1,y2;
 		Line(int x1,int y1,int x2,int y2);
 		bool same_as(Line l,int offset1, float offset2);
+		float length();
 
 };
 
@@ -57,3 +58,5 @@ public:
 };
 
 bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset);
+
+bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset);

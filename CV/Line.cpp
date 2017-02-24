@@ -25,6 +25,11 @@ Line::Line(int x1,int y1,int x2,int y2)
 	}
 }
 
+float Line::length()
+{
+	return sqrt(pow(float(x1-x2),2)+pow(float(y1-y2),2));
+}
+
 bool Line::same_as(Line l,int offset1, float offset2)
 {
 	int dot=(x1-x2)*(l.x1-l.x2)+(y1-y2)*(l.y1-l.y2);
@@ -236,4 +241,15 @@ bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset)
 		return true;
 	}
 	else return false;
+}
+
+bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset)
+{
+	array<Point,4> p12_a;
+	array<Point,4> p34_a;
+	p12_a[0]=Point(l12[0].x1,l12[0].y1);
+	p12_a[1]=Point(l12[1].x1,l12[1].y1);
+	p34_a[0]=Point(l34[0].x1,l34[0].y1);
+	p34_a[1]=Point(l34[1].x1,l34[1].y1);
+	return isSquare(p12_a, p34_a, l12[0].length, offset);
 }

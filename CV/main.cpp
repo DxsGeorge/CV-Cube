@@ -19,7 +19,7 @@ using namespace std;
 int main()
 {
 	//cout << "OpenCV version : " << CV_VERSION << endl; //shows version, currently 2.4.10
-
+	bool track_intersections = false;
 	//Define Algorith Margins
 	
 	int p_offset = 5; //limit of checking for same points
@@ -83,20 +83,22 @@ int main()
 				cout << lines.size() << "\n";
 
 				//Find Intersections
+				
 
-				vector <Point> SamePoints;
-				SamePoints=FindIntersectionSpots(lines,p_offset,l_offset);
+				//vector <Point> SamePoints;
+				//SamePoints=FindIntersectionSpots(lines,p_offset,l_offset);
 				vector<Square> squares;
-				squares=FindSquares(SamePoints, l_offset);
+				squares=FindSquares(lines, l_offset);
 
 				//Draw
+
 				cvtColor(dst,dst,CV_GRAY2BGR);
-				/*
+#if (!track_intersections)
 				for (size_t i=0;i<lines.size();i++)
 				{
 					line( dst, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 1, CV_AA);
 				}
-				*/
+#elif (!track_intersections)
 				for (size_t i=0; i<SamePoints.size() ; i++)
 				{
 					//std::ostringstream text;
@@ -122,7 +124,7 @@ int main()
 					sqpoints.push_back(squares[i].getPoint(4));
 					fillConvexPoly(dst, &sqpoints[0], 4, Scalar(255,0,0));
 				}
-			
+#endif			
 				imshow("video",src);
 				imshow("Canny",dst);
 			}

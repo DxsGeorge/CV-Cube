@@ -81,3 +81,42 @@ vector<Square> FindSquares(vector <Point> points, float offset)
 	return squares;
 }
 
+vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
+{
+	vector<Square> squares;
+	multimap<float, array<Line,2>> line_pairs;
+	for (size_t i=0;i<lines.size();i++)
+	{
+		for (size_t j=i+1;j<lines.size();j++)
+		{
+			if (SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x1,lines[j].y1),p_offset) ||
+				SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x2,lines[j].y2),p_offset) ||
+				SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x1,lines[j].y1),p_offset) ||
+				SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x2,lines[j].y2),p_offset) )
+			{
+				if (VerticalLines(lines[i],lines[j],l_offset))
+				{
+					array<Line,2> line_a;
+					line_a[0]=lines[i];
+					line_a[1]=lines[j];
+					line_pairs.insert(pair<float,array<Line,2>>(lines[i].length(),line_a));
+				}
+			}
+
+		}
+	}
+	for (multimap<float, array<Line,2>>::iterator it = line_pairs.begin(); it!=line_pairs.end(); ++it)
+	{
+		float dist = (*it).first;
+		pair<multimap<float,array<Line,2>>::iterator,multimap<float,array<Line,2>>::iterator> range = line_pairs.equal_range(dist);
+		for (multimap<float, array<Line,2>>::iterator it2 = range.first; it2!=range.second ; ++it2)
+		{
+			if (isSquare((*it).second,(*it2).second,l_offset))
+			squares.push_back(Square(Point((*it).second[0].x1,(*it).second[0].y1),
+							         Point((*it).second[1].x1,(*it).second[1].y1),
+							         Point((*it2).second[0].x1,(*it).second[0].y1),
+							         Point((*it2).second[1].x1,(*it).second[1].y1)));
+		}
+	}
+	return squares;
+}

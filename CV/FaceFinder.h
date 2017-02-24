@@ -14,4 +14,6 @@ vector<Point> FindIntersectionSpots (vector<Line> lines, int l_offset, float p_o
 
 vector<Square> FindSquares(vector<Point> points, float offset);
 
+vector<Square> FindSquares(vector <Line> lines, float offset);
+
 float roundf(float val);
