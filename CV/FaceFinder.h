@@ -16,4 +16,6 @@ vector<Square> FindSquares(vector<Point> points, float offset);
 
 vector<Square> FindSquares(vector <Line> lines,int p_offset, float l_offset);
 
+vector<Square> FindSquares2(vector <Line> lines,int p_offset, float l_offset);
+
 float roundf(float val);

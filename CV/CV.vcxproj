@@ -16,12 +16,14 @@
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MyHash.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FaceFinder.h" />
     <ClInclude Include="Hough_Transform.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="MyHash.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B75E344C-CFF0-47AF-BD6B-63F75B9F3F29}</ProjectGuid>

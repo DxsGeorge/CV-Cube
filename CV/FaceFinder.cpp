@@ -1,4 +1,5 @@
 #include "FaceFinder.h"
+#include "MyHash.h"
 
 float roundf(float val)
 {
@@ -91,7 +92,7 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 	{
 		for (size_t j=i+1;j<lines.size();j++)
 		{
-			if (abs(lines[i].length()-lines[j].length())<0.3)
+			if (abs(lines[i].length()-lines[j].length())<10)
 			{
 				if (PerpLines(lines[i],lines[j],l_offset))
 				{
@@ -139,19 +140,109 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 	for (multimap<float, array<Point,3>>::iterator it = points.begin(); it!=points.end(); ++it)
 	{
 		float dist = (*it).first;
-		pair<multimap<float,array<Point,3>>::iterator,multimap<float,array<Point,3>>::iterator> range = points.equal_range(dist);
-		for (multimap<float, array<Point,3>>::iterator it2 = range.first; it2!=range.second ; ++it2)
+		multimap<float, array<Point,3>>::iterator itlow=points.lower_bound(dist-10);
+		multimap<float, array<Point,3>>::iterator ithi=points.upper_bound(dist+10);		
+		//pair<multimap<float,array<Point,3>>::iterator,multimap<float,array<Point,3>>::iterator> range = points.equal_range(dist);
+		//for (multimap<float, array<Point,3>>::iterator it2 = range.first; it2!=range.second ; ++it2)
+		for (multimap<float, array<Point,3>>::iterator it2 = itlow; it2!=ithi ; ++it2)
 		{
-			if (isSquare2((*it).second,(*it2).second,p_offset))
+			Point points1[3];
+			Point points2[3];
+			copy(begin((*it).second),end((*it).second),begin(points1));
+			copy(begin((*it2).second),end((*it2).second),begin(points2));
+			if (isSquare2(points1,points2,p_offset))
 			{
 				Point A=(*it).second[1];
 				Point B=(*it).second[0];
 				Point C=(*it).second[2];
 				Point D=(*it2).second[0];
-				squares.push_back(Square(A,B,C,D));
+				Square *square1 = new Square(A,B,C,D);
+				int area=square1->Area();
+				if (area>50) squares.push_back(*square1);
 			}
+			
 		}
 	}
 	return squares;
 }
 
+vector<Square> FindSquares2(vector <Line> lines,int p_offset, float l_offset)
+{
+	vector<Square> squares;
+	HashTable table;
+	for (size_t i=0;i<lines.size();++i)
+	{
+		for (size_t j=i+1;j<lines.size();++j)
+		{
+			if (abs(lines[i].length()-lines[j].length())<100)
+			{
+				//if (PerpLines(lines[i],lines[j],l_offset))
+				//{
+					if (SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x1,lines[j].y1),p_offset)) 
+					{
+						Item *a=new Item();						
+						a->same=Point(lines[i].x1,lines[i].y1);
+						a->point1=Point(lines[i].x2,lines[i].y2);
+						a->point2=Point(lines[j].x2,lines[i].y2);
+						a->key=Distance(a->point1,a->point2);
+						table.insertItem(a);
+					}
+					else if	(SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x2,lines[j].y2),p_offset)) 
+					{
+						Item *a=new Item();					
+						a->same=Point(lines[i].x1,lines[i].y1);
+						a->point1=Point(lines[i].x2,lines[i].y2);
+						a->point2=Point(lines[j].x1,lines[i].y1);
+						a->key=Distance(a->point1,a->point2);
+						table.insertItem(a);
+					}
+					else if	(SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x1,lines[j].y1),p_offset))
+					{
+						Item *a=new Item();					
+						a->same=Point(lines[i].x2,lines[i].y2);
+						a->point1=Point(lines[i].x1,lines[i].y1);
+						a->point2=Point(lines[j].x2,lines[i].y2);
+						a->key=Distance(a->point1,a->point2);
+						table.insertItem(a);
+					}
+					else if	(SamePoint(Point(lines[i].x2,lines[i].y2),Point(lines[j].x2,lines[j].y2),p_offset)) 
+					{
+						Item *a=new Item();					
+						a->same=Point(lines[i].x2,lines[i].y2);
+						a->point1=Point(lines[i].x1,lines[i].y1);
+						a->point2=Point(lines[j].x1,lines[i].y1);
+						a->key=Distance(a->point1,a->point2);
+						table.insertItem(a);
+					}
+
+				//}
+			}
+		}
+	}
+	for (int i=0; i<table.getLength(); ++i)
+	{
+		if (table.list[i].getLength()<2) break;
+		else 
+		{
+			vector<Item> items=table.list[i].getAllItems();
+			for (size_t j=0; j<items.size(); ++j)
+			{
+				for (size_t k=j+1;k<items.size();++k)
+				{
+					Point points1[3]={items[j].same,items[j].point1,items[j].point2};
+					Point points2[3]={items[k].same,items[k].point1,items[k].point2};
+					if (isSquare2(points1,points2,l_offset)) 
+					{
+						Point A=items[j].point1;
+						Point B=items[j].same;
+						Point C=items[j].point2;
+						Point D=items[k].same;
+						squares.push_back(Square(A,B,C,D));
+					}
+
+				}
+			}
+		}
+	}
+	return squares;
+}

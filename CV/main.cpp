@@ -22,7 +22,7 @@ int main()
 	bool track_intersections = false;
 	//Define Algorithm Margins
 	
-	int p_offset = 5; //limit of checking for same points
+	int p_offset = 100; //limit of checking for same points
 	float l_offset = 0.1; //limit of checking for vertical lines
 	int s_offset=5; //limit of checking for same lines
 	int canny_p[3]={50,200,5}; //Canny parameters	
@@ -90,8 +90,8 @@ int main()
 					vector <Point> SamePoints;
 					SamePoints=FindIntersectionSpots(lines,p_offset,l_offset);
 					vector<Square> squares;
-					//squares=FindSquares(lines, p_offset, l_offset);
-					squares=FindSquares(SamePoints,  l_offset);
+					squares=FindSquares(lines, p_offset, l_offset);
+					//squares=FindSquares(SamePoints,  l_offset);
 					//Draw
 
 					cvtColor(dst,dst,CV_GRAY2BGR);
@@ -217,7 +217,7 @@ int main()
 
 			for (size_t i=0;i<lines.size();i++)
 			{
-				line( test, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 1, CV_AA);
+				line( test, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 2, CV_AA);
 				//circle (test, Point(lines[i].x1, lines[i].y1), 1, Scalar(255,255,0), 2);
 				//circle (test, Point(lines[i].x2, lines[i].y2), 1, Scalar(255,255,0), 2);
 			}

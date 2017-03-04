@@ -449,8 +449,9 @@ bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset)
 	}
 }
 
-bool isSquare2(array<Point,3> p1, array<Point,3> p2, float offset)
+bool isSquare2(Point p1[3], Point p2[3], float offset)
 {
+	
 	if (abs(p1[0].x-p2[0].x)<0.1 && abs(p1[0].y-p2[0].y)<0.1) return false;
 	if ((abs(p1[1].x-p2[1].x)<offset && abs(p1[1].y-p2[1].y)<offset && (abs(p1[2].x-p2[2].x)<offset && abs(p1[2].y-p2[2].y)<offset)) ||
 		(abs(p1[1].x-p2[2].x)<offset && abs(p1[1].y-p2[2].y)<offset && (abs(p1[2].x-p2[1].x)<offset && abs(p1[2].y-p2[1].y)<offset)))

@@ -70,4 +70,4 @@ bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset);
 
 bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset);
 
-bool isSquare2(array<Point,3> p123, array<Point,3> p145, float offset);
+bool isSquare2(Point p1[3], Point p2[3], float offset);
