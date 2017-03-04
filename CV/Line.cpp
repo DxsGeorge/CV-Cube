@@ -25,6 +25,11 @@ Line::Line(int x1,int y1,int x2,int y2)
 	}
 }
 
+Line::Line()
+{
+
+}
+
 float Line::length()
 {
 	return sqrt(pow(float(x1-x2),2)+pow(float(y1-y2),2));
@@ -72,6 +77,12 @@ bool VerticalLines (Line l1, Line l2, float offset)
 	float cosf=dot/abs_values;
 	if (abs(cosf)<offset) return true;
 	else return false;
+}
+
+bool PerpLines(Line l1, Line l2, float offset)
+{
+	int dot=(l1.x1-l1.x2)*(l2.x1-l2.x2)+(l1.y1-l1.y2)*(l2.y1-l2.y2);
+	return (dot<offset*1000);
 }
 
 float Distance (int x1, int y1, int x2, int y2)
@@ -180,6 +191,14 @@ bool isBetween2(Point a, Point b, Point c)
 	return (abs(ac+bc-ba)<std::numeric_limits<double>::epsilon()); 
 }
 
+bool SameLine(Line l1, Line l2, float offset)
+{
+	if (((abs(l1.x1-l2.x1)<offset && abs(l1.y1-l2.y1)<offset) && (abs(l1.x2-l2.x2)<offset && abs(l1.y2-l2.y2)<offset)) ||
+		((abs(l1.x1-l2.x2)<offset && abs(l1.y1-l2.y2)<offset) && (abs(l1.x2-l2.x1)<offset && abs(l1.y2-l2.y1)<offset)) ) return true;
+	else return false;
+
+}
+
 bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r)
 {
     Point2f x = o2 - o1;
@@ -193,6 +212,64 @@ bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r)
     double t1 = (x.x * d2.y - x.y * d2.x)/cross;
     r = o1 + d1 * t1;
     return true;
+}
+
+bool intersection2(Point A1, Point A2, Point B1, Point B2, Point &P)
+{
+	Point A;
+	A.x=A1.x-A2.x;
+	A.y=A1.y-A2.y;
+	Point B;
+	B.x=B1.x-B2.x;
+	B.y=B1.y-B2.y;
+	double f=(A.y*B.x) - (A.x*B.y);
+	if(!f) return false;
+	Point C;
+	C.x=B2.x-A2.x;
+	C.y=B2.y-A2.y;
+	double aa = (A.y*C.x) - (A.x*C.y);
+	double bb = (B.y*C.x) - (B.x*C.y);
+	 if(f < 0)
+    {
+        if(aa > 0)     return false;
+        if(bb > 0)     return false;
+        if(aa < f)     return false;
+        if(bb < f)     return false;
+    }
+    else
+    {
+        if(aa < 0)     return false;
+        if(bb < 0)     return false;
+        if(aa > f)     return false;
+        if(bb > f)     return false;
+    }
+	P.x = ((B2.x - B1.x) * (1.0 - (aa / f))) + B1.x;
+	P.y = ((B2.y - B1.y) * (1.0 - (aa / f))) + B1.y;
+	return true;
+}
+
+bool intersection3(Point A, Point B, Point C, Point D, Point &P)
+{
+	if (A.x==C.x && A.y==C.y || B.x==C.x && B.y==C.y ||  A.x==D.x && A.y==D.y || B.x==D.x && B.y==D.y) return false;
+	double  distAB, theCos, theSin, newX, ABpos ;
+	B.x-=A.x; B.y-=A.y;
+	C.x-=A.x; C.y-=A.y;
+	D.x-=A.x; D.y-=A.y;
+	distAB=sqrt(float(B.x*B.x+B.y*B.y));
+	theCos=B.x/distAB;
+	theSin=B.y/distAB;
+	newX=C.x*theCos+C.y*theSin;
+	C.y=C.y*theCos-C.x*theSin; 
+	C.x=newX;
+	newX=D.x*theCos+D.y*theSin;
+	D.y=D.y*theCos-D.x*theSin; 
+	D.x=newX;
+	if (C.y<0. && D.y<0. || C.y>=0. && D.y>=0.) return false;
+	ABpos=D.x+(C.x-D.x)*D.y/(D.y-C.y);
+	if (ABpos<0. || ABpos>distAB) return false;
+	P.x=A.x+ABpos*theCos;
+	P.y=A.y+ABpos*theSin;
+	return true;
 }
 
 Square::Square (Point point1, Point point2, Point point3, Point point4)
@@ -245,11 +322,138 @@ bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset)
 
 bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset)
 {
-	array<Point,4> p12_a;
-	array<Point,4> p34_a;
-	p12_a[0]=Point(l12[0].x1,l12[0].y1);
-	p12_a[1]=Point(l12[1].x1,l12[1].y1);
-	p34_a[0]=Point(l34[0].x1,l34[0].y1);
-	p34_a[1]=Point(l34[1].x1,l34[1].y1);
-	return isSquare(p12_a, p34_a, l12[0].length, offset);
+	if (SameLine(l12[0],l34[0],offset) || SameLine(l12[0],l34[1],offset) || SameLine(l12[1],l34[0],offset) || SameLine(l12[1],l34[1],offset)) return false;
+	if (abs(l12[0].x1-l12[1].x1)<offset && abs(l12[0].y1-l12[1].y1)<offset)
+	{
+		if (abs(l34[0].x1-l34[1].x1)<offset && abs(l34[0].y1-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset) && (abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset)) ||
+					((abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset) && (abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset) && (abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset) && (abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x1)<offset && abs(l34[0].y2-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset) && (abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset)) ||
+					((abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset) && (abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset) && (abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset) && (abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset)));
+		}
+		else if (abs(l34[0].x1-l34[1].x2)<offset && abs(l34[0].y1-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset) && (abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset)) ||
+					((abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset) && (abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset) && (abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset) && (abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x2)<offset && abs(l34[0].y2-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset) && (abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset)) ||
+					((abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset) && (abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset) && (abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset) && (abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset)));
+		}
+	}
+	else if (abs(l12[0].x1-l12[1].x2)<offset && abs(l12[0].y1-l12[1].y2)<offset)
+	{
+		if (abs(l34[0].x1-l34[1].x1)<offset && abs(l34[0].y1-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset) && (abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset)) ||
+					((abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset) && (abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset) && (abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset) && (abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x1)<offset && abs(l34[0].y2-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset) && (abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset)) ||
+					((abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset) && (abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset) && (abs(l12[0].x2-l34[0].x2)<offset && abs(l12[0].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset) && (abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset)));
+		}
+		else if (abs(l34[0].x1-l34[1].x2)<offset && abs(l34[0].y1-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset) && (abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset)) ||
+					((abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset) && (abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset) && (abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset) && (abs(l12[0].x2-l34[1].x2)<offset && abs(l12[0].y2-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x2)<offset && abs(l34[0].y2-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset) && (abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset)) ||
+					((abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset) && (abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset) && (abs(l12[0].x2-l34[0].x1)<offset && abs(l12[0].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset) && (abs(l12[0].x2-l34[1].x1)<offset && abs(l12[0].y2-l34[1].y1)<offset)));
+		}
+	}
+	else if (abs(l12[0].x2-l12[1].x1)<offset && abs(l12[0].y2-l12[1].y1)<offset)
+	{
+		if (abs(l34[0].x1-l34[1].x1)<offset && abs(l34[0].y1-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset) && (abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset)) ||
+					((abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset) && (abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset) && (abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset) && (abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x1)<offset && abs(l34[0].y2-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset) && (abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset)) ||
+					((abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset) && (abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset) && (abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x2-l34[0].x2)<offset && abs(l12[1].y2-l34[0].y2)<offset) && (abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset)));
+		}
+		else if (abs(l34[0].x1-l34[1].x2)<offset && abs(l34[0].y1-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset) && (abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset)) ||
+					((abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset) && (abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[1].x2)<offset && abs(l12[1].y2-l34[1].y2)<offset) && (abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset) && (abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x2)<offset && abs(l34[0].y2-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset) && (abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset)) ||
+					((abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset) && (abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[1].x1)<offset && abs(l12[1].y2-l34[1].y1)<offset) && (abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x2-l34[0].x1)<offset && abs(l12[1].y2-l34[0].y1)<offset) && (abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset)));
+		}
+	}
+	else if (abs(l12[0].x2-l12[1].x2)<offset && abs(l12[0].y2-l12[1].y2)<offset)
+	{
+		if (abs(l34[0].x1-l34[1].x1)<offset && abs(l34[0].y1-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset) && (abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset)) ||
+					((abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset) && (abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset) && (abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset) && (abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x1)<offset && abs(l34[0].y2-l34[1].y1)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset) && (abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset)) ||
+					((abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset) && (abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset) && (abs(l12[0].x1-l34[0].x2)<offset && abs(l12[0].y1-l34[0].y2)<offset)) ||
+					((abs(l12[1].x1-l34[0].x2)<offset && abs(l12[1].y1-l34[0].y2)<offset) && (abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset)));
+		}
+		else if (abs(l34[0].x1-l34[1].x2)<offset && abs(l34[0].y1-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset) && (abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset)) ||
+					((abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset) && (abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[1].x2)<offset && abs(l12[1].y1-l34[1].y2)<offset) && (abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset) && (abs(l12[0].x1-l34[1].x2)<offset && abs(l12[0].y1-l34[1].y2)<offset)));
+		}
+		else if (abs(l34[0].x2-l34[1].x2)<offset && abs(l34[0].y2-l34[1].y2)<offset)
+		{
+			return (((abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset) && (abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset)) ||
+					((abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset) && (abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[1].x1)<offset && abs(l12[1].y1-l34[1].y1)<offset) && (abs(l12[0].x1-l34[0].x1)<offset && abs(l12[0].y1-l34[0].y1)<offset)) ||
+					((abs(l12[1].x1-l34[0].x1)<offset && abs(l12[1].y1-l34[0].y1)<offset) && (abs(l12[0].x1-l34[1].x1)<offset && abs(l12[0].y1-l34[1].y1)<offset)));
+		}
+	}
+}
+
+bool isSquare2(array<Point,3> p1, array<Point,3> p2, float offset)
+{
+	if (abs(p1[0].x-p2[0].x)<0.1 && abs(p1[0].y-p2[0].y)<0.1) return false;
+	if ((abs(p1[1].x-p2[1].x)<offset && abs(p1[1].y-p2[1].y)<offset && (abs(p1[2].x-p2[2].x)<offset && abs(p1[2].y-p2[2].y)<offset)) ||
+		(abs(p1[1].x-p2[2].x)<offset && abs(p1[1].y-p2[2].y)<offset && (abs(p1[2].x-p2[1].x)<offset && abs(p1[2].y-p2[1].y)<offset)))
+		return true;
+	else return false;
 }

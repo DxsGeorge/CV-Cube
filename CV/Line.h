@@ -13,6 +13,7 @@ class Line
 	public: 
 		int x1,x2,y1,y2;
 		Line(int x1,int y1,int x2,int y2);
+		Line();
 		bool same_as(Line l,int offset1, float offset2);
 		float length();
 
@@ -23,6 +24,8 @@ bool SamePoint (Point p1, Point p2, int offset);
 bool VerticalLines (Point p1, Point p2, Point p3, Point p4, float offset);
 
 bool VerticalLines (Line l1, Line l2, float offset);
+
+bool PerpLines(Line l1, Line l2, float offset);
 
 float Distance (int x1, int y1, int x2, int y2);
 
@@ -40,6 +43,10 @@ bool LineIntersection2(Point a, Point b, Point c, Point d, Point &r);
 
 Point IntersectionPoint(Point a, Point b, Point c, Point d);
 
+bool intersection2(Point A1, Point A2, Point B1, Point B2, Point &P);
+
+bool intersection3(Point A, Point B, Point C, Point D, Point &P);
+
 bool CheckParallel(Point a, Point b, Point c, Point d);
 
 bool isBetween(Point a, Point b, Point c);
@@ -47,6 +54,8 @@ bool isBetween(Point a, Point b, Point c);
 bool isBetween2(Point a, Point b, Point c);
 
 bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r);
+
+bool SameLine(Line l1, Line l2, float offset);
 
 class Square
 {
@@ -60,3 +69,5 @@ public:
 bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset);
 
 bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset);
+
+bool isSquare2(array<Point,3> p123, array<Point,3> p145, float offset);
