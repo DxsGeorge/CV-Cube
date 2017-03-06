@@ -92,16 +92,17 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 	{
 		for (size_t j=i+1;j<lines.size();j++)
 		{
-			if (abs(lines[i].length()-lines[j].length())<10)
+			Point a;
+			if (max(lines[i].length(),lines[j].length())/min(lines[i].length(),lines[j].length())<1.3)
 			{
 				if (PerpLines(lines[i],lines[j],l_offset))
-				{
+				{					
 					if (SamePoint(Point(lines[i].x1,lines[i].y1),Point(lines[j].x1,lines[j].y1),p_offset)) 
 					{
 						array<Point,3> points_a;
 						points_a[0]=Point(lines[i].x1,lines[i].y1);
 						points_a[1]=Point(lines[i].x2,lines[i].y2);
-						points_a[2]=Point(lines[j].x2,lines[i].y2);
+						points_a[2]=Point(lines[j].x2,lines[j].y2);
 						float dist=Distance(points_a[1],points_a[2]);
 						points.insert(pair<float,array<Point,3> >(dist,points_a));
 					}
@@ -110,7 +111,7 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 						array<Point,3> points_a;
 						points_a[0]=Point(lines[i].x1,lines[i].y1);
 						points_a[1]=Point(lines[i].x2,lines[i].y2);
-						points_a[2]=Point(lines[j].x1,lines[i].y1);
+						points_a[2]=Point(lines[j].x1,lines[j].y1);
 						float dist=Distance(points_a[1],points_a[2]);
 						points.insert(pair<float,array<Point,3> >(dist,points_a));
 					}
@@ -119,7 +120,7 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 						array<Point,3> points_a;
 						points_a[0]=Point(lines[i].x2,lines[i].y2);
 						points_a[1]=Point(lines[i].x1,lines[i].y1);
-						points_a[2]=Point(lines[j].x2,lines[i].y2);
+						points_a[2]=Point(lines[j].x2,lines[j].y2);
 						float dist=Distance(points_a[1],points_a[2]);
 						points.insert(pair<float,array<Point,3> >(dist,points_a));
 					}
@@ -128,11 +129,52 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 						array<Point,3> points_a;
 						points_a[0]=Point(lines[i].x2,lines[i].y2);
 						points_a[1]=Point(lines[i].x1,lines[i].y1);
-						points_a[2]=Point(lines[j].x1,lines[i].y1);
+						points_a[2]=Point(lines[j].x1,lines[j].y1);
+						float dist=Distance(points_a[1],points_a[2]);
+						points.insert(pair<float,array<Point,3> >(dist,points_a));
+					}					
+				}
+			}
+			if (intersection3(lines[i].getPoint(1),lines[i].getPoint(2),lines[j].getPoint(1),lines[j].getPoint(2),a))
+			{
+				if (PerpLines(lines[i],lines[j],l_offset))
+				{					
+					if (max(Distance(lines[i].getPoint(1),a),Distance(lines[j].getPoint(1),a))/min(Distance(lines[i].getPoint(1),a),Distance(lines[j].getPoint(1),a))<1.3)
+					{
+						array<Point,3> points_a;
+						points_a[0]=a;
+						points_a[1]=lines[i].getPoint(1);
+						points_a[2]=lines[j].getPoint(1);
 						float dist=Distance(points_a[1],points_a[2]);
 						points.insert(pair<float,array<Point,3> >(dist,points_a));
 					}
-
+					else if (max(Distance(lines[i].getPoint(1),a),Distance(lines[j].getPoint(2),a))/min(Distance(lines[i].getPoint(1),a),Distance(lines[j].getPoint(2),a))<1.3)
+					{
+						array<Point,3> points_a;
+						points_a[0]=a;
+						points_a[1]=lines[i].getPoint(1);
+						points_a[2]=lines[j].getPoint(2);
+						float dist=Distance(points_a[1],points_a[2]);
+						points.insert(pair<float,array<Point,3> >(dist,points_a));
+					}
+					else if (max(Distance(lines[i].getPoint(2),a),Distance(lines[j].getPoint(1),a))/min(Distance(lines[i].getPoint(2),a),Distance(lines[j].getPoint(1),a))<1.3)
+					{
+						array<Point,3> points_a;
+						points_a[0]=a;
+						points_a[1]=lines[i].getPoint(2);
+						points_a[2]=lines[j].getPoint(1);
+						float dist=Distance(points_a[1],points_a[2]);
+						points.insert(pair<float,array<Point,3> >(dist,points_a));
+					}
+					else if (max(Distance(lines[i].getPoint(2),a),Distance(lines[j].getPoint(2),a))/min(Distance(lines[i].getPoint(2),a),Distance(lines[j].getPoint(2),a))<1.3)
+					{
+						array<Point,3> points_a;
+						points_a[0]=a;
+						points_a[1]=lines[i].getPoint(2);
+						points_a[2]=lines[j].getPoint(2);
+						float dist=Distance(points_a[1],points_a[2]);
+						points.insert(pair<float,array<Point,3> >(dist,points_a));
+					}
 				}
 			}
 		}
@@ -150,7 +192,7 @@ vector<Square> FindSquares(vector <Line> lines, int p_offset, float l_offset)
 			Point points2[3];
 			copy(begin((*it).second),end((*it).second),begin(points1));
 			copy(begin((*it2).second),end((*it2).second),begin(points2));
-			if (isSquare2(points1,points2,p_offset))
+			if (isSquare2(points1,points2,dist,Distance((*it).second[0],(*it2).second[0]),p_offset))
 			{
 				Point A=(*it).second[1];
 				Point B=(*it).second[0];
@@ -174,7 +216,7 @@ vector<Square> FindSquares2(vector <Line> lines,int p_offset, float l_offset)
 	{
 		for (size_t j=i+1;j<lines.size();++j)
 		{
-			if (abs(lines[i].length()-lines[j].length())<100)
+			if (abs(lines[i].length()-lines[j].length())<1000)
 			{
 				//if (PerpLines(lines[i],lines[j],l_offset))
 				//{
@@ -231,7 +273,7 @@ vector<Square> FindSquares2(vector <Line> lines,int p_offset, float l_offset)
 				{
 					Point points1[3]={items[j].same,items[j].point1,items[j].point2};
 					Point points2[3]={items[k].same,items[k].point1,items[k].point2};
-					if (isSquare2(points1,points2,l_offset)) 
+					if (isSquare2(points1,points2,Distance(points1[1],points1[2]),Distance(points2[1],points2[2]),l_offset)) 
 					{
 						Point A=items[j].point1;
 						Point B=items[j].same;

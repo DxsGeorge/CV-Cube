@@ -1,5 +1,6 @@
 ﻿#include "Line.h"
 #include <math.h>
+#include <iostream>
 
 using namespace cv;
 using namespace std;
@@ -28,6 +29,22 @@ Line::Line(int x1,int y1,int x2,int y2)
 Line::Line()
 {
 
+}
+
+Point Line::getPoint(int x)
+{
+	switch (x)
+	{
+	case 1:
+		return Point(x1,y1);
+		break;
+	case 2:
+		return Point(x2,y2);
+		break;
+	default:
+		return Point(NULL,NULL);
+		break;
+	}
 }
 
 float Line::length()
@@ -306,6 +323,19 @@ Point Square::getPoint(int val)
 	}
 }
 
+Point Square::getCenter()
+{
+	if (Distance(this->getPoint(1),this->getPoint(2))/Distance(this->getPoint(1),this->getPoint(3))<1.3)
+		return Point(int((this->getPoint(1).x-this->getPoint(2).x)/2),int((this->getPoint(1).y-this->getPoint(2).y)/2));
+	else 
+		return Point(int((this->getPoint(1).x+this->getPoint(3).x)/2),int((this->getPoint(1).y+this->getPoint(3).y)/2));
+}
+
+bool Square::operator==(Square x)
+{
+	return (abs(this->getCenter().x-x.getCenter().x)<5 && abs(this->getCenter().y-x.getCenter().y)<5);
+}
+
 bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset)
 {
 	Point p1=p12[0];
@@ -449,12 +479,17 @@ bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset)
 	}
 }
 
-bool isSquare2(Point p1[3], Point p2[3], float offset)
+bool isSquare2(Point p1[3], Point p2[3],float distance1, float distance2, float offset)
 {
-	
+	if (max(distance1,distance2)/min(distance1,distance2)>1.3) return false;
 	if (abs(p1[0].x-p2[0].x)<0.1 && abs(p1[0].y-p2[0].y)<0.1) return false;
 	if ((abs(p1[1].x-p2[1].x)<offset && abs(p1[1].y-p2[1].y)<offset && (abs(p1[2].x-p2[2].x)<offset && abs(p1[2].y-p2[2].y)<offset)) ||
 		(abs(p1[1].x-p2[2].x)<offset && abs(p1[1].y-p2[2].y)<offset && (abs(p1[2].x-p2[1].x)<offset && abs(p1[2].y-p2[1].y)<offset)))
 		return true;
 	else return false;
+}
+
+bool PointsInLine(Point a, Point b, Point c)
+{
+	return ((max(abs(b.y-a.y)*(c.x-b.x),abs((c.y-b.y)*(b.x-a.x))))/(min(abs(b.y-a.y)*(c.x-b.x),abs((c.y-b.y)*(b.x-a.x))))<1.3);
 }

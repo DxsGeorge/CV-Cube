@@ -21,8 +21,8 @@ int main()
 	//cout << "OpenCV version : " << CV_VERSION << endl; //shows version, currently 2.4.10
 	bool track_intersections = false;
 	//Define Algorithm Margins
-	
-	int p_offset = 100; //limit of checking for same points
+	//vector<Square> all_squares;
+	int p_offset = 10; //limit of checking for same points
 	float l_offset = 0.1; //limit of checking for vertical lines
 	int s_offset=5; //limit of checking for same lines
 	int canny_p[3]={50,200,5}; //Canny parameters	
@@ -31,7 +31,7 @@ int main()
 	//Test Hough and Canny Parameters
 
 	int mode=1;
-	bool video=false;
+	bool video=true;
 	int C_lowThreshold=50;
 	int H_lowThreshold1=100;
 	int H_lowThreshold2=100;
@@ -60,7 +60,7 @@ int main()
 			Mat src;
 			cap >> src; 
 			cap.set(CV_CAP_PROP_BRIGHTNESS,40);
-			cap.set(CV_CAP_PROP_CONTRAST,20);
+			cap.set(CV_CAP_PROP_CONTRAST,40);
 			flip(src,src,1);
 
 			switch (mode)
@@ -93,7 +93,6 @@ int main()
 					squares=FindSquares(lines, p_offset, l_offset);
 					//squares=FindSquares(SamePoints,  l_offset);
 					//Draw
-
 					cvtColor(dst,dst,CV_GRAY2BGR);
 	#if (!track_intersections)
 					for (size_t i=0;i<lines.size();i++)
@@ -105,7 +104,7 @@ int main()
 						line( dst, squares[i].getPoint(1), squares[i].getPoint(2), Scalar(0,255,0), 1, CV_AA);
 						line( dst, squares[i].getPoint(2), squares[i].getPoint(3), Scalar(0,255,0), 1, CV_AA);
 						line( dst, squares[i].getPoint(3), squares[i].getPoint(4), Scalar(0,255,0), 1, CV_AA);
-						line( dst, squares[i].getPoint(4), squares[i].getPoint(1), Scalar(0,255,0), 1, CV_AA);
+						line( dst, squares[i].getPoint(4), squares[i].getPoint(1), Scalar(0,255,0), 1, CV_AA);						
 					}
 				
 	#elif (track_intersections)
@@ -197,7 +196,7 @@ int main()
 			Mat test=imread("C:/Users/user/Desktop/CV/test.jpg",1);
 			int canny_p[3]={C_lowThreshold,C_lowThreshold*3,3};
 			int hough_p[3]={H_lowThreshold1,H_lowThreshold2,H_lowThreshold3};
-			Mat dst;
+			Mat dst,dst1;
 			cvtColor(test,dst,CV_BGR2GRAY);
 			vector<Vec4i> vec_lines;
 			vec_lines=HoughTransform(test,dst,canny_p,hough_p);
@@ -206,6 +205,7 @@ int main()
 			for (size_t i=0;i<vec_lines.size(); i++)
 			{
 				lines.push_back(Line(vec_lines[i][0],vec_lines[i][1],vec_lines[i][2],vec_lines[i][3]));
+
 			}
 			cout << lines.size() << "\n";
 
@@ -217,7 +217,7 @@ int main()
 
 			for (size_t i=0;i<lines.size();i++)
 			{
-				line( test, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 2, CV_AA);
+				line( test, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 1, CV_AA);
 				//circle (test, Point(lines[i].x1, lines[i].y1), 1, Scalar(255,255,0), 2);
 				//circle (test, Point(lines[i].x2, lines[i].y2), 1, Scalar(255,255,0), 2);
 			}
@@ -236,6 +236,10 @@ int main()
 			*/
 			for (size_t i=0; i<squares.size() ; i++)
 			{
+				line( test, squares[i].getPoint(1), squares[i].getPoint(2), Scalar(255,255,0), 2, CV_AA);
+				line( test, squares[i].getPoint(2), squares[i].getPoint(3), Scalar(255,255,0), 2, CV_AA);
+				line( test, squares[i].getPoint(3), squares[i].getPoint(4), Scalar(255,255,0), 2, CV_AA);
+				line( test, squares[i].getPoint(4), squares[i].getPoint(1), Scalar(255,255,0), 2, CV_AA);
 				circle (test, squares[i].getPoint(1), 1, Scalar(255,255,0), 2);
 				circle (test, squares[i].getPoint(2), 1, Scalar(255,255,0), 2);
 				circle (test, squares[i].getPoint(3), 1, Scalar(255,255,0), 2);
@@ -243,7 +247,8 @@ int main()
 			}
 			imshow("video",dst);
 			imshow("Canny",test);
-			if( waitKey(1) == 27 ) break;
+			//if( waitKey(1) == 27 ) break;
+			waitKey(0);
 		}
 	}
 	 

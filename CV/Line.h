@@ -16,6 +16,7 @@ class Line
 		Line();
 		bool same_as(Line l,int offset1, float offset2);
 		float length();
+		Point getPoint(int x);
 
 };
 
@@ -57,6 +58,7 @@ bool intersection(Point2f o1, Point2f p1, Point2f o2, Point2f p2,Point &r);
 
 bool SameLine(Line l1, Line l2, float offset);
 
+
 class Square
 {
 	Point p1, p2, p3, p4;
@@ -64,10 +66,14 @@ public:
 	Square (Point point1, Point point2, Point point3, Point point4);
 	float Area();
 	Point getPoint(int val);
+	bool operator==(Square x);
+	Point getCenter();
 };
 
 bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset);
 
 bool isSquare(array<Line,2> l12, array<Line,2> l34, float offset);
 
-bool isSquare2(Point p1[3], Point p2[3], float offset);
+bool isSquare2(Point p1[3], Point p2[3],float distance1, float distance2, float offset);
+
+bool PointsInLine(Point a, Point b, Point c);
