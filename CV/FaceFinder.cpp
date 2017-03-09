@@ -288,3 +288,75 @@ vector<Square> FindSquares2(vector <Line> lines,int p_offset, float l_offset)
 	}
 	return squares;
 }
+
+vector <Square> FindGridSquares(vector<Square> squares, float offset1)
+{
+	vector<Square> gridsquares;
+	for (size_t i=0;i<squares.size();++i)
+	{ 
+		int detects=0;
+		vector<Square> tempsquares;
+		for (size_t j=i+1;j<squares.size();++j)
+		{
+			tempsquares.clear();
+			if ((VerticalLines(Line(squares[i].getPoint(1),squares[i].getPoint(2)),Line(squares[j].getPoint(1),squares[j].getPoint(2)),offset1) ||
+				VerticalLines(Line(squares[i].getPoint(2),squares[i].getPoint(3)),Line(squares[j].getPoint(1),squares[j].getPoint(2)),offset1)) &&
+				abs(squares[i].Area()-squares[j].Area())<1000 && 
+				absDifference(squares[i].getCenter(),squares[j].getCenter())>=squares[i].sideSize() &&
+				abs(squares[i].sideSize()-squares[j].sideSize())<20)
+			{
+				detects++;
+				tempsquares.push_back(squares[j]);
+			}
+			tempsquares.push_back(squares[i]);
+			if (detects>6) 
+			{
+				for (size_t j=0; j<tempsquares.size(); ++j)
+				{
+					gridsquares.push_back(tempsquares[j]);						
+				}
+			}
+		}
+	}
+	if (gridsquares.size()>5) cout<<"Success! \n";
+	return gridsquares;
+}
+
+vector<Line> gridLines(vector<Line> lines, float offset)
+{
+	vector<Line> gridlines;
+	int detects1,detects2;
+	for (size_t i=0; i<lines.size();++i)
+	{
+		detects1=detects2=0;
+		for (size_t j=i+1;j<lines.size();++j)
+		{
+			if (
+				CheckParallel(lines[i],lines[j]) && 
+				max(lines[i].length(),lines[j].length())/min(lines[i].length(),lines[j].length())<1.2 
+				//max(lines[i].length(),Distance(lines[i],lines[j]))/min(lines[i].length(),Distance(lines[i],lines[j]))<1.2
+				)
+			{
+				detects1++;
+			}
+		}
+		if (detects1>2) 
+		{
+			for (size_t j=i+1;j<lines.size();++j)
+			{
+				if (
+					VerticalLines(lines[i],lines[j],offset) && 
+					max(lines[i].length(),lines[j].length())/min(lines[i].length(),lines[j].length())<1.2 &&
+					intersection3(lines[i].getPoint(1),lines[i].getPoint(2),lines[j].getPoint(1),lines[j].getPoint(2))
+					) 
+				{
+					detects2++;
+				}
+			}
+		}
+		if (detects2>2) gridlines.push_back(lines[i]);
+	}
+	if (gridlines.size()>=4) cout<<"Success! \n\a";
+	return gridlines;
+
+}

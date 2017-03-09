@@ -34,16 +34,16 @@ int main()
 	bool video=true;
 	int C_lowThreshold=50;
 	int H_lowThreshold1=100;
-	int H_lowThreshold2=100;
+	int H_lowThreshold2=10;
 	int H_lowThreshold3=5;
 	int const max_lowThreshold = 200;
 	int const max_H_Threshold = 200;
 	namedWindow("video",1);
 	namedWindow("Canny",1);
-	createTrackbar("Canny:", "Canny", &C_lowThreshold, max_lowThreshold);
+	//createTrackbar("Canny:", "Canny", &C_lowThreshold, max_lowThreshold);
 	createTrackbar("Hough 1:", "Canny", &H_lowThreshold1, max_H_Threshold);
-	createTrackbar("Hough 2:", "Canny", &H_lowThreshold2, max_H_Threshold);
-	createTrackbar("Hough 3:", "Canny", &H_lowThreshold3, max_H_Threshold);
+	//createTrackbar("Hough 2:", "Canny", &H_lowThreshold2, max_H_Threshold);
+	//createTrackbar("Hough 3:", "Canny", &H_lowThreshold3, max_H_Threshold);
 	bool init=true; // initialize LK
 
 	//cin >> mode;
@@ -51,63 +51,79 @@ int main()
 	//Video capture
 	if (video) 
 	{
+		int t_count=0;
+		Mat images_a[4];
 		VideoCapture cap(1);
 		Mat src_copy;
+		Mat prev;
+		cap >> prev;
 		while (true)
 		{
 			int canny_p[3]={C_lowThreshold,C_lowThreshold*3,3};
 			int hough_p[3]={H_lowThreshold1,H_lowThreshold2,H_lowThreshold3};
 			Mat src;
 			cap >> src; 
-			cap.set(CV_CAP_PROP_BRIGHTNESS,40);
-			cap.set(CV_CAP_PROP_CONTRAST,40);
+			int br=cap.get(CV_CAP_PROP_BRIGHTNESS);//40
+			int con=cap.get(CV_CAP_PROP_CONTRAST);//48
+			cap.set(CV_CAP_PROP_BRIGHTNESS,br);
+			cap.set(CV_CAP_PROP_CONTRAST,con);
 			flip(src,src,1);
-
+			
 			switch (mode)
 			{
 				case 1:
 
 				//HoughTransform on captured frame
-
-				if (!src.empty())
-				{
-					src.copyTo(src_copy);
-					Mat dst;
-					cvtColor(src,dst,CV_BGR2GRAY);
-					vector<Vec4i> vec_lines;
-					vec_lines=HoughTransform(src,dst,canny_p,hough_p);
-					vector <Line> lines;
-					lines.reserve(vec_lines.size());	
-					for (size_t i=0;i<vec_lines.size(); i++)
+					if (!src.empty())
 					{
-						lines.push_back(Line(vec_lines[i][0],vec_lines[i][1],vec_lines[i][2],vec_lines[i][3]));
-					}
-					cout << lines.size() << "\n";
+						src.copyTo(src_copy);
+						Mat dst;
+						cvtColor(src,dst,CV_BGR2GRAY);
+						vector<Vec4i> vec_lines;
+						vec_lines=HoughTransform(src,dst,canny_p,hough_p);
+						vector <Line> lines;
+						lines.reserve(vec_lines.size());	
+						for (size_t i=0;i<vec_lines.size(); i++)
+						{
+							lines.push_back(Line(vec_lines[i][0],vec_lines[i][1],vec_lines[i][2],vec_lines[i][3]));
+						}
+						cout << lines.size() << "\n";
 
-					//Find Intersections
+						//Find Intersections
 				
+						vector<Line> grid;
+						grid=gridLines(lines, l_offset);
+						vector <Point> SamePoints;
+						SamePoints=FindIntersectionSpots(lines,p_offset,l_offset);
+						vector<Square> squares,squares2;
+						//squares2=FindSquares(lines, p_offset, l_offset);
+						//squares=FindGridSquares(squares2,l_offset);
+						//squares=FindSquares(SamePoints,  l_offset);
+						//Draw
+						cvtColor(dst,dst,CV_GRAY2BGR);
 
-					vector <Point> SamePoints;
-					SamePoints=FindIntersectionSpots(lines,p_offset,l_offset);
-					vector<Square> squares;
-					squares=FindSquares(lines, p_offset, l_offset);
-					//squares=FindSquares(SamePoints,  l_offset);
-					//Draw
-					cvtColor(dst,dst,CV_GRAY2BGR);
-	#if (!track_intersections)
-					for (size_t i=0;i<lines.size();i++)
-					{
-						line( dst, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 1, CV_AA);
-					}
-					for (size_t i=0;i<squares.size();i++)
-					{
-						line( dst, squares[i].getPoint(1), squares[i].getPoint(2), Scalar(0,255,0), 1, CV_AA);
-						line( dst, squares[i].getPoint(2), squares[i].getPoint(3), Scalar(0,255,0), 1, CV_AA);
-						line( dst, squares[i].getPoint(3), squares[i].getPoint(4), Scalar(0,255,0), 1, CV_AA);
-						line( dst, squares[i].getPoint(4), squares[i].getPoint(1), Scalar(0,255,0), 1, CV_AA);						
-					}
+#if (!track_intersections)
+						/*
+						for (size_t i=0;i<lines.size();i++)
+						{
+							line( dst, Point(lines[i].x1, lines[i].y1), Point(lines[i].x2, lines[i].y2), Scalar(0,0,255), 1, CV_AA);
+						}
+						*/
+						for (size_t i=0;i<squares.size();i++)
+						{
+							line( dst, squares[i].getPoint(1), squares[i].getPoint(2), Scalar(0,255,0), 1, CV_AA);
+							line( dst, squares[i].getPoint(2), squares[i].getPoint(3), Scalar(0,255,0), 1, CV_AA);
+							line( dst, squares[i].getPoint(3), squares[i].getPoint(4), Scalar(0,255,0), 1, CV_AA);
+							line( dst, squares[i].getPoint(4), squares[i].getPoint(1), Scalar(0,255,0), 1, CV_AA);						
+						}
+
+						for (size_t i=0;i<grid.size();i++)
+						{
+							line( dst, Point(grid[i].x1, grid[i].y1), Point(grid[i].x2, grid[i].y2), Scalar(255,255,0), 2, CV_AA);
+						}
+
 				
-	#elif (track_intersections)
+#elif (track_intersections)
 				for (size_t i=0; i<SamePoints.size() ; i++)
 				{
 					//std::ostringstream text;
@@ -134,10 +150,11 @@ int main()
 					fillConvexPoly(dst, &sqpoints[0], 4, Scalar(255,0,0));
 				}
 				*/
-	#endif			
-					imshow("video",src);
-					imshow("Canny",dst);
-				}
+#endif			
+						imshow("video",src);
+						imshow("Canny",dst);
+					}
+					prev=src;
 				break;
 
 				case 2:
@@ -184,9 +201,10 @@ int main()
 	#pragma endregion
 					}
 			}
-
+		
 		if( waitKey(1) == 27 ) break;
 		//Sleep(33);
+		
 		}
 	}
 	else 

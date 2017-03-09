@@ -31,6 +31,11 @@ Line::Line()
 
 }
 
+Line::Line(Point p1, Point p2)
+{
+	Line(p1.x,p1.y,p2.x,p2.y);
+}
+
 Point Line::getPoint(int x)
 {
 	switch (x)
@@ -68,6 +73,11 @@ bool Line::same_as(Line l,int offset1, float offset2)
 bool SamePoint (Point p1, Point p2, int offset) 
 {
 	return (abs(p1.x-p2.x)<offset && abs(p1.y-p2.y)<offset);
+}
+
+float absDifference(Point p1, Point p2)
+{
+	return ((abs(p1.x-p2.x)+abs(p1.y-p2.y))/2.0);
 }
 
 bool VerticalLines (Point p1, Point p2, Point p3, Point p4, float offset)
@@ -112,6 +122,11 @@ float Distance (int x1, int y1, int x2, int y2)
 float Distance (Point p1, Point p2)
 {
 	return Distance(p1.x,p1.y,p2.x,p2.y);
+}
+
+float Distance(Line l1, Line l2)
+{
+	return Distance(int(l1.x1+l1.x2/2),int(l1.y1+l1.y2/2),int(l2.x1+l2.x2/2),int(l2.y1+l2.y2/2));
 }
 
 float twoDcross (float x1, float y1, float x2, float y2)
@@ -176,7 +191,12 @@ bool sameLine (int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4,in
 
 bool CheckParallel(Point a, Point b, Point c, Point d)
 {
-	return (abs((a.x-b.x)*(c.y-d.y)-(a.y-b.y)*(c.x-d.x))<std::numeric_limits<float>::epsilon() );
+	return (abs((a.x-b.x)*(c.y-d.y)-(a.y-b.y)*(c.x-d.x))<0.01 );
+}
+
+bool CheckParallel(Line l1, Line l2)
+{
+	return CheckParallel(Point(l1.x1,l1.y1),Point(l1.x2,l1.y2),Point(l2.x1,l2.y1),Point(l2.x2,l2.y2));
 }
 
 Point IntersectionPoint(Point a, Point b, Point c, Point d)
@@ -289,6 +309,12 @@ bool intersection3(Point A, Point B, Point C, Point D, Point &P)
 	return true;
 }
 
+bool intersection3(Point A, Point B, Point C, Point D)
+{
+	Point a;
+	return intersection3(A, B, C, D, a);
+}
+
 Square::Square (Point point1, Point point2, Point point3, Point point4)
 {
 	p1=point1;
@@ -329,6 +355,20 @@ Point Square::getCenter()
 		return Point(int((this->getPoint(1).x-this->getPoint(2).x)/2),int((this->getPoint(1).y-this->getPoint(2).y)/2));
 	else 
 		return Point(int((this->getPoint(1).x+this->getPoint(3).x)/2),int((this->getPoint(1).y+this->getPoint(3).y)/2));
+}
+
+float Square::sideSize()
+{
+	float min1=min(Distance(this->getPoint(1),getPoint(2)),Distance(this->getPoint(2),getPoint(3)));
+	float min2=min(Distance(this->getPoint(1),getPoint(2)),Distance(this->getPoint(1),getPoint(3)));
+	return min(min1,min2);
+}
+
+float Square::diagSize()
+{
+	float max1=max(Distance(this->getPoint(1),getPoint(2)),Distance(this->getPoint(2),getPoint(3)));
+	float max2=max(Distance(this->getPoint(1),getPoint(2)),Distance(this->getPoint(1),getPoint(3)));
+	return max(max1,max2);
 }
 
 bool Square::operator==(Square x)

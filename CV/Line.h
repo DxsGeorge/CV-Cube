@@ -13,12 +13,15 @@ class Line
 	public: 
 		int x1,x2,y1,y2;
 		Line(int x1,int y1,int x2,int y2);
+		Line(Point p1, Point p2);
 		Line();
 		bool same_as(Line l,int offset1, float offset2);
 		float length();
 		Point getPoint(int x);
 
 };
+
+float absDifference(Point p1, Point p2);
 
 bool SamePoint (Point p1, Point p2, int offset);
 
@@ -31,6 +34,8 @@ bool PerpLines(Line l1, Line l2, float offset);
 float Distance (int x1, int y1, int x2, int y2);
 
 float Distance (Point p1, Point p2);
+
+float Distance(Line l1, Line l2);
 
 float twoDcross (float x1, float y1, float x2, float y2);
 
@@ -46,9 +51,13 @@ Point IntersectionPoint(Point a, Point b, Point c, Point d);
 
 bool intersection2(Point A1, Point A2, Point B1, Point B2, Point &P);
 
+bool intersection3(Point A, Point B, Point C, Point D);
+
 bool intersection3(Point A, Point B, Point C, Point D, Point &P);
 
 bool CheckParallel(Point a, Point b, Point c, Point d);
+
+bool CheckParallel(Line l1, Line l2);
 
 bool isBetween(Point a, Point b, Point c);
 
@@ -68,6 +77,8 @@ public:
 	Point getPoint(int val);
 	bool operator==(Square x);
 	Point getCenter();
+	float sideSize();
+	float diagSize();
 };
 
 bool isSquare(array<Point,2> p12, array<Point,2> p34, float dist, float offset);
