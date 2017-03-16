@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FaceFinder.cpp" />
+    <ClCompile Include="FeatureDetector.cpp" />
     <ClCompile Include="Hough_Transform.cpp" />
     <ClCompile Include="Input.cpp" />
     <ClCompile Include="Line.cpp" />
@@ -20,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FaceFinder.h" />
+    <ClInclude Include="FeatureDetector.h" />
     <ClInclude Include="Hough_Transform.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="Line.h" />
