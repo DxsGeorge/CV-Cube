@@ -360,3 +360,61 @@ vector<Line> gridLines(vector<Line> lines, float offset)
 	return gridlines;
 
 }
+
+void ShowFace(Mat src, vector<Point> points)
+{
+	int maxval[3]={0,0,0};
+	for (int i=points[0].x;i<points[1].x;i++)
+	{
+		for (int j=points[0].y;j<points[1].y;j++)
+		{
+			Vec3b intensity=src.at<Vec3b>(j,i);
+			if (maxval[0]<intensity[0]) maxval[0]=intensity[0];
+			if (maxval[1]<intensity[1]) maxval[1]=intensity[1];
+			if (maxval[2]<intensity[2]) maxval[2]=intensity[2];
+		}
+	}
+	Vec3b topleft=src.at<Vec3b>(points[0]);
+	Vec3b midtop=src.at<Vec3b>(Point((points[0].x+points[1].x)/2,points[0].y));
+	Vec3b topright=src.at<Vec3b>(Point(points[1].x,points[0].y));
+	Vec3b midleft=src.at<Vec3b>(Point(points[0].x,(points[1].y+points[1].y)/2));
+	Vec3b mid=src.at<Vec3b>(Point((points[0].x+points[1].x)/2,(points[0].y+points[1].y)/2));
+	Vec3b midright=src.at<Vec3b>(Point(points[1].x,(points[0].y+points[1].y)/2));
+	Vec3b leftbot=src.at<Vec3b>(Point(points[0].x,points[1].y));
+	Vec3b midbot=src.at<Vec3b>(Point((points[0].x+points[1].x)/2,points[1].y));
+	Vec3b rightbot=src.at<Vec3b>(points[1]);
+	cout<<ColorMatcher(topleft,maxval)<<"|"<<ColorMatcher(midtop,maxval)<<"|"<<ColorMatcher(topright,maxval)<<"\n";
+	cout<<ColorMatcher(midleft,maxval)<<"|"<<ColorMatcher(mid,maxval)<<"|"<<ColorMatcher(midright,maxval)<<"\n";
+	cout<<ColorMatcher(leftbot,maxval)<<"|"<<ColorMatcher(midbot,maxval)<<"|"<<ColorMatcher(rightbot,maxval)<<"\n";
+	cout<<maxval[0]<<","<<maxval[1]<<","<<maxval[2]<<"\n";
+	circle(src,points[0],3, Scalar(topleft.val[0],topleft.val[1],topleft.val[2]), -1, 8);
+	//circle(src,Point((points[0].x+points[1].x)/2,points[0].y),3, Scalar(0,255,0), -1, 8);
+	circle(src,Point((points[0].x+points[1].x)/2,points[0].y),3, Scalar(0,255,0), -1, 8);
+}
+
+float middle(float x , float y, float z)
+	{
+		if(x<=y && y<= z)
+			return y;
+		if(y<=x && x<=z)
+			return x;
+		if(x<=z && z<=y)
+			return z;
+	}
+
+string ColorMatcher(Vec3b values, int maxval[])
+{
+	//B = 0 | G = 1 | R = 2
+	//BGR values below
+	//RED(0,0,255) 0, GREEN (68,154,0) 0.44, BLUE(155,61,0) 0.39, ORANGE(0,80,254) 0.31, YELLOW (0,215,255) 0.84, WHITE (255,255,255) 1
+	float max1=max(values[0],max(values[1],values[2]));
+	float div=middle(values[0],values[1],values[2])/max1;
+	if (div<0.3) return "red";
+	else if (div<0.39) return "orange";
+	else if (div<0.45) return "blue";
+	else if (div<0.85) return "green";
+	else if (div<1) return "yellow";
+	else return "white";
+}
+
+

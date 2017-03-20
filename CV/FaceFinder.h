@@ -23,3 +23,9 @@ vector <Square> FindGridSquares(vector<Square> squares, float offset1);
 vector<Line> gridLines(vector<Line> lines, float offset);
 
 float roundf(float val);
+
+void ShowFace(Mat src, vector<Point> points);
+
+string ColorMatcher(Vec3b values, int maxval[]);
+
+float middle(float x , float y, float z);

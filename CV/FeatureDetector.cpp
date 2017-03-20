@@ -131,3 +131,51 @@ void ORBDetectFeatures(Mat src, Mat &dst, Mat templ)
 		imshow( "Good Matches & Object detection", img_matches );
 	}
 }
+
+bool BlobDetectFeatures(Mat src, Mat &dst, vector<Point> &points)
+{
+	SimpleBlobDetector::Params params;
+	params.filterByArea=true;
+	params.minArea=300;
+	params.filterByCircularity = true;
+	params.minCircularity = 0.5;
+	params.filterByInertia = true;
+	params.minInertiaRatio = 0.8;
+	SimpleBlobDetector detector(params);
+	vector<KeyPoint> keypoints;
+	detector.detect( src, keypoints);
+	drawKeypoints( src, keypoints, dst, Scalar(0,0,255), 2 );
+	if (keypoints.size() >= 5) 	
+	{
+		
+		vector<Point> kp;
+		for (size_t i=0;i<keypoints.size();++i)
+		{
+			kp.push_back(keypoints[i].pt);
+		}
+		Rect rect=boundingRect(kp);
+		if (max(rect.height,rect.width)/min(rect.width,rect.height)<1.2) 
+		{
+					//cout<<"Success! \n";
+		
+			//rectangle( dst, rect.tl(), rect.br(), Scalar(255,0,0), 2, 8, 0 );
+			points.push_back(rect.tl());
+			points.push_back(rect.br());
+			int counts=0;
+			for (size_t i=0;i<keypoints.size();i++)
+			{
+			
+				for (size_t j=i+1;j<keypoints.size();j++)
+				{
+					float size1=keypoints[i].size;
+					float size2=keypoints[j].size;
+					if ((min(size1,size2)/max(size1,size2))>0.8) counts++;
+					cout<<counts<<"\n";
+				}
+				if (counts>3) return true;
+				counts=0;
+			}
+		}
+	}
+	return false;
+}

@@ -223,31 +223,41 @@ int main()
 				cap >> src; 							
 				if (!src.empty())
 				{		
+					bool success;
+					vector<Point> points;
 					flip(src,src,1);
+					Mat src1;
+					src.copyTo(src1);
+					pyrDown(src1,src1,Size(src.cols/2,src.rows/2));	
 					cvtColor(src,src,CV_BGR2GRAY);
-					pyrDown(src,src,Size(src.cols/2,src.rows/2));	
-								
+					pyrDown(src,src,Size(src.cols/2,src.rows/2));						
 					Mat templ=imread("C:/Users/user/Desktop/CV/template2.png",0);
 					pyrDown(templ,templ,Size(templ.cols/2,templ.rows/2));
-					Mat dst;
+					Mat dst(src.cols,src.rows,CV_8UC1);
 					Mat dst1(src.cols,src.rows,CV_8UC1);
 					int canny_p[3]={C_lowThreshold,C_lowThreshold*3,3};
 					int hough_p[3]={H_lowThreshold1,H_lowThreshold2,H_lowThreshold3};
-					GaussianBlur(src,src,Size(5,5),0,0);
+					GaussianBlur(src,src,Size(7,7),0,0);
 					Laplacian(src,dst,CV_16SC1,3);
 					compare(dst,8,dst,CV_CMP_GT);
 					compare(src,100, dst1, CV_CMP_LT);
 					bitwise_and(dst,dst1,dst);
 					convertScaleAbs(dst,dst,1,0);
+					Mat kernel = getStructuringElement(MORPH_RECT, Size(5, 5));
+					//erode(dst,dst,kernel);
+					//dilate(dst,dst,kernel);
+					dilate(dst,dst,kernel);
+					erode(dst,dst,kernel);
+					GaussianBlur(dst,dst,Size(3,3),0,0);
 					//SiftDetectFeatures(dst,dst,templ);
-					SurfDetectFeatures(dst,dst,templ);
+					//SurfDetectFeatures(dst,dst,templ);
+					success=BlobDetectFeatures(dst, dst, points);
+					if (success) ShowFace(src1, points);
 					//ORBDetectFeatures(dst, dst, templ);
 					//int size;
 					//size=FastDetectFeatures(src,dst,thresh);
 					imshow("video",dst);
-					//imshow("Canny",src);					
-					cout<<"run \n";
-					//waitKey(0);
+					imshow("Canny",src1);					
 					
 				}
 				if( waitKey(1) == 27 ) break;
